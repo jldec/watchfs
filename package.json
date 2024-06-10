@@ -1,0 +1,26 @@
+{
+  "name": "watchfs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "watchFs.js",
+  "type": "module",
+  "scripts": {
+    "test": "tsc --noEmit && DEBUG=sdk:watchFs vitest --reporter=tap-flat run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@lix-js/fs": "^2.1.0",
+    "@types/debug": "^4.1.12",
+    "@types/node": "^20.14.2",
+    "debug": "^4.3.5",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  },
+  "prettier": {
+    "semi": false,
+    "useTabs": true,
+    "printWidth": 100
+  }
+}
