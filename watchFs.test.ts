@@ -81,7 +81,7 @@ describe.each(await testEnvironments())(
 				}
 				expect(observer.next).toHaveBeenCalledWith("subdir")
 
-				await nodeishFs.writeFile(join(baseDir, "subdir/foo.bar"), "{}")
+				await nodeishFs.writeFile(join(baseDir, "subdir", "foo.bar"), "{}")
 				await sleep(waitForWatch)
 
 				if (envName === "memory") {
@@ -91,7 +91,7 @@ describe.each(await testEnvironments())(
 				// node versions <20 do not support recursive watch
 				// https://github.com/nodejs/node/pull/45098#issuecomment-1891612491
 				if (envName === "memory" || parseInt(process.version.slice(1, 3)) >= 20) {
-					expect(observer.next).toHaveBeenCalledWith("subdir/foo.bar")
+					expect(observer.next).toHaveBeenCalledWith(join("subdir", "foo.bar"))
 				}
 				const nextCallCount = observer.next.mock.calls.length
 
