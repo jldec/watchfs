@@ -44,10 +44,10 @@ describe.each(await testEnvironments())(
 		const waitForWatch = 100
 		const isMemory = envName === "memory"
 
-		// memoryFs watch seems to prefer forward slashes (not using join)
+		// Only memoryFs has consistent event counts across OS flavors
+		// so we only check for additional watch events, not for exact counts
+		// And memoryFs watch seems to prefer forward slashes (not using join)
 		// TODO: normalize paths for memoryFs
-		// and only memoryFs has consistent event counts across OS flavors
-		// => can't easily count watch events for node in these tests
 
 		const filename1 = "message.json"
 		const filepath = isMemory ? baseDir + "/" + filename1 : join(baseDir, filename1)
@@ -71,48 +71,46 @@ describe.each(await testEnvironments())(
 				const observable = watchFs({ nodeishFs, baseDir })
 				const subscription = observable.subscribe(observer)
 
+				let lastCallCount = observer.next.mock.calls.length
+
 				await nodeishFs.writeFile(filepath, "{}")
 				await sleep(waitForWatch)
 
-				if (isMemory) {
-					expect(observer.next).toHaveBeenCalledTimes(1)
-				}
+				expect(observer.next.mock.calls.length).toBeGreaterThan(lastCallCount)
+				lastCallCount = observer.next.mock.calls.length
 				expect(observer.next).toHaveBeenCalledWith(filename1)
 
 				await nodeishFs.rm(filepath)
 				await sleep(waitForWatch)
 
-				if (isMemory) {
-					expect(observer.next).toHaveBeenCalledTimes(2)
-				}
+				expect(observer.next.mock.calls.length).toBeGreaterThan(lastCallCount)
+				lastCallCount = observer.next.mock.calls.length
 				expect(observer.next).toHaveBeenCalledWith(filename1)
 
 				await nodeishFs.mkdir(dirpath, { recursive: true })
 				await sleep(waitForWatch)
 
-				if (isMemory) {
-					expect(observer.next).toHaveBeenCalledTimes(3)
-				}
+				expect(observer.next.mock.calls.length).toBeGreaterThan(lastCallCount)
+				lastCallCount = observer.next.mock.calls.length
 				expect(observer.next).toHaveBeenCalledWith(dirname)
 
 				await nodeishFs.writeFile(dirfilepath, "{}")
 				await sleep(waitForWatch)
 
-				if (isMemory) {
-					expect(observer.next).toHaveBeenCalledTimes(4)
-				}
 				// node versions <20 do not support recursive watch
 				// https://github.com/nodejs/node/pull/45098#issuecomment-1891612491
 				if (isMemory || parseInt(process.version.slice(1, 3)) >= 20) {
+					expect(observer.next.mock.calls.length).toBeGreaterThan(lastCallCount)
+					lastCallCount = observer.next.mock.calls.length
 					expect(observer.next).toHaveBeenCalledWith(dirfilename)
 				}
-				const nextCallCount = observer.next.mock.calls.length
 
 				// should complete without more events
+				expect(observer.complete).not.toHaveBeenCalled()
 				subscription.unsubscribe()
 				await sleep(waitForWatch)
 
-				expect(observer.next).toHaveBeenCalledTimes(nextCallCount)
+				expect(observer.next).toHaveBeenCalledTimes(lastCallCount)
 				expect(observer.error).not.toHaveBeenCalled()
 				expect(observer.complete).toHaveBeenCalledTimes(1)
 
@@ -120,7 +118,7 @@ describe.each(await testEnvironments())(
 				await nodeishFs.writeFile(filepath, "{}")
 				await sleep(waitForWatch)
 
-				expect(observer.next).toHaveBeenCalledTimes(nextCallCount)
+				expect(observer.next).toHaveBeenCalledTimes(lastCallCount)
 				expect(observer.error).not.toHaveBeenCalled()
 				expect(observer.complete).toHaveBeenCalledTimes(1)
 			},
