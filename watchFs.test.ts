@@ -73,54 +73,45 @@ describe.each(await testEnvironments())(
 
 				let lastCallCount = observer.next.mock.calls.length
 
-				await nodeishFs.writeFile(filepath, "{}")
-				await sleep(waitForWatch)
+				async function checkForMoreCalls() {
+					await sleep(waitForWatch)
+					expect(observer.next.mock.calls.length).toBeGreaterThan(lastCallCount)
+					lastCallCount = observer.next.mock.calls.length
+				}
 
-				expect(observer.next.mock.calls.length).toBeGreaterThan(lastCallCount)
-				lastCallCount = observer.next.mock.calls.length
+				async function checkForNoMoreCalls() {
+					await sleep(waitForWatch)
+					expect(observer.next).toHaveBeenCalledTimes(lastCallCount)
+					expect(observer.error).not.toHaveBeenCalled()
+				}
+
+				await nodeishFs.writeFile(filepath, "{}")
+				await checkForMoreCalls()
 				expect(observer.next).toHaveBeenCalledWith(filename1)
 
 				await nodeishFs.rm(filepath)
-				await sleep(waitForWatch)
-
-				expect(observer.next.mock.calls.length).toBeGreaterThan(lastCallCount)
-				lastCallCount = observer.next.mock.calls.length
+				await checkForMoreCalls()
 				expect(observer.next).toHaveBeenCalledWith(filename1)
 
 				await nodeishFs.mkdir(dirpath, { recursive: true })
-				await sleep(waitForWatch)
-
-				expect(observer.next.mock.calls.length).toBeGreaterThan(lastCallCount)
-				lastCallCount = observer.next.mock.calls.length
+				await checkForMoreCalls()
 				expect(observer.next).toHaveBeenCalledWith(dirname)
-
-				await nodeishFs.writeFile(dirfilepath, "{}")
-				await sleep(waitForWatch)
 
 				// node versions <20 do not support recursive watch
 				// https://github.com/nodejs/node/pull/45098#issuecomment-1891612491
 				if (isMemory || parseInt(process.version.slice(1, 3)) >= 20) {
-					expect(observer.next.mock.calls.length).toBeGreaterThan(lastCallCount)
-					lastCallCount = observer.next.mock.calls.length
+					await nodeishFs.writeFile(dirfilepath, "{}")
+					await checkForMoreCalls()
 					expect(observer.next).toHaveBeenCalledWith(dirfilename)
 				}
 
-				// should complete without more events
 				expect(observer.complete).not.toHaveBeenCalled()
 				subscription.unsubscribe()
-				await sleep(waitForWatch)
-
-				expect(observer.next).toHaveBeenCalledTimes(lastCallCount)
-				expect(observer.error).not.toHaveBeenCalled()
+				await checkForNoMoreCalls()
 				expect(observer.complete).toHaveBeenCalledTimes(1)
 
-				// should not emit any more events
 				await nodeishFs.writeFile(filepath, "{}")
-				await sleep(waitForWatch)
-
-				expect(observer.next).toHaveBeenCalledTimes(lastCallCount)
-				expect(observer.error).not.toHaveBeenCalled()
-				expect(observer.complete).toHaveBeenCalledTimes(1)
+				await checkForNoMoreCalls()
 			},
 			{ timeout: 5000 }
 		)
