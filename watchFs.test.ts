@@ -97,7 +97,7 @@ describe.each(await testEnvironments())(
 				await checkForMoreCalls()
 				expect(observer.next).toHaveBeenCalledWith(dirname)
 
-				// node versions <20 do not support recursive watch
+				// node versions <20 do not support recursive watch under linux
 				// https://github.com/nodejs/node/pull/45098#issuecomment-1891612491
 				if (isMemory || parseInt(process.version.slice(1, 3)) >= 20) {
 					await nodeishFs.writeFile(dirfilepath, "{}")
