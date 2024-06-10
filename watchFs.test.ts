@@ -44,7 +44,7 @@ describe.each(await testEnvironments())(
 		const waitForWatch = 100
 		const isMemory = envName === "memory"
 
-		// memoryFs watch seems to prefer forward slashes
+		// memoryFs watch seems to prefer forward slashes (not using join)
 		// TODO: normalize paths for memoryFs
 		// and only memoryFs has consistent event counts across OS flavors
 		// => can't easily count watch events for node in these tests
@@ -79,7 +79,7 @@ describe.each(await testEnvironments())(
 				}
 				expect(observer.next).toHaveBeenCalledWith(filename1)
 
-				await nodeishFs.rm(join(baseDir, filename1))
+				await nodeishFs.rm(filepath)
 				await sleep(waitForWatch)
 
 				if (isMemory) {
@@ -117,7 +117,7 @@ describe.each(await testEnvironments())(
 				expect(observer.complete).toHaveBeenCalledTimes(1)
 
 				// should not emit any more events
-				await nodeishFs.writeFile(join(baseDir, filename1), "{}")
+				await nodeishFs.writeFile(filepath, "{}")
 				await sleep(waitForWatch)
 
 				expect(observer.next).toHaveBeenCalledTimes(nextCallCount)
