@@ -5,7 +5,7 @@
   "main": "watchFs.js",
   "type": "module",
   "scripts": {
-    "test": "tsc --noEmit && DEBUG=sdk:watchFs vitest --reporter=tap-flat run"
+    "test": "tsc --noEmit && vitest --reporter=tap-flat run"
   },
   "keywords": [],
   "author": "",

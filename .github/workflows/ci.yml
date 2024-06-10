@@ -11,8 +11,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        node_version: [18]
+        node_version: [18, 20, 22]
     runs-on: ${{ matrix.os }}
+    env:
+      DEBUG: sdk:watchFs
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
