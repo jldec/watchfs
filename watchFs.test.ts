@@ -56,7 +56,7 @@ describe.each(await testEnvironments())(
 				const observable = watchFs({ nodeishFs, baseDir })
 				const subscription = observable.subscribe(observer)
 
-				await nodeishFs.writeFile(join(baseDir, "/messages.json"), "{}")
+				await nodeishFs.writeFile(join(baseDir, "messages.json"), "{}")
 				await sleep(waitForWatch)
 
 				// only memoryFs has consistent event counts across different OS
