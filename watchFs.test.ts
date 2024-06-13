@@ -130,7 +130,7 @@ describe.each(await testEnvironments())(
         await nodeishFs.writeFile(filepath, "{}")
         await checkForNoMoreCalls()
       },
-      { timeout: 500000 }
+      { timeout: 5000 }
     )
     it(
       "works with RxJS",
@@ -138,6 +138,7 @@ describe.each(await testEnvironments())(
         await nodeishFs.mkdir(baseDir, { recursive: true })
 
         const watcher = watchFs({ nodeishFs, baseDir }) as unknown as rxjs.ObservableInput<string>
+
         const unshared = rxjs.from(watcher)
         const shared = rxjs.from(watcher).pipe(rxjs.share())
 
@@ -155,7 +156,7 @@ describe.each(await testEnvironments())(
         subscription3.unsubscribe()
         subscription4.unsubscribe()
       },
-      { timeout: 500000 }
+      { timeout: 5000 }
     )
   }
 )
