@@ -1,12 +1,21 @@
 # watchFs
 
-Temporary test repo for https://github.com/opral/monorepo/pull/2913
-To investigating failure of directory watch on Linux and other inconsistencies
-see [watchFs.test.ts](watchFs.test.ts)
+Experimental test repo for https://github.com/opral/monorepo/pull/2913
 
-- Only memoryFs emits consistent event counts across OS flavors so we only check for additional watch events, not for exact counts to make up for node inconsistencies.
+- [watchFs.test.ts](watchFs.test.ts) - test for differences across environments
+- [rxjs.test.ts](rxjs.test.ts) - test for rxjs behavior
+- [watchFs.ts](watchFs.ts) - copy of inlang/source-code/sdk/src/persistence/watchFs.ts
 
-- memoryFs watch seems to prefer forward slashes (not using join) TODO: normalize paths for memoryFs.
+## Findings
 
-- node versions <20 do not support recursive watch under linux
-	https://github.com/nodejs/node/pull/45098#issuecomment-1891612491
+- node versions <20 do not support recursive watch under linux  
+  https://github.com/nodejs/node/pull/45098#issuecomment-1891612491
+
+- node watch event counts are not consistent across OS flavors  
+  We only check for additional watch events, not for exact counts to make up for node inconsistencies.
+
+- memoryFs watch seems to prefer forward slashes  
+  Using path.join on windows for the watch path doesn't work.
+  TODO: normalize paths for memoryFs.
+
+- rsjs does not emit complete() after subscription.unsubscribe()  
