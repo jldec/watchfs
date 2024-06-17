@@ -51,7 +51,7 @@ export function watchFs(args: {
         unsubscribe() {
           debug(args.baseDir, "unsubscribe")
           state = "unsubscribed"
-          // don't trigger a complete after unsubscribe (TODO: check if this is correct)
+          // don't trigger a complete after unsubscribe
           abortController.abort()
         },
       }
