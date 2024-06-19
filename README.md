@@ -18,4 +18,4 @@ Experimental test repo for https://github.com/opral/monorepo/pull/2913
   Using path.join on windows for the watch path doesn't work.
   TODO: normalize paths for memoryFs.
 
-- rsjs does not emit complete() after subscription.unsubscribe()  
+- rxjs oberservers do not emit complete() after subscription.unsubscribe()  
